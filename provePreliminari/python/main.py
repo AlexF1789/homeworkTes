@@ -6,7 +6,7 @@ import ctypes
 from dft import dft as custom_dft
 from dft import shift as custom_shift
 
-audio, fs = sf.read('prova.oga')
+audio, fs = sf.read('provePreliminari\\prova.oga')
 audio = np.array(audio[:, 0], dtype=np.float32)
 
 print("Lavoro su:", len(audio), "campionati a", fs/1000, "kHz")
@@ -19,7 +19,7 @@ print("Lavoro su:", len(audio), "campionati a", fs/1000, "kHz")
 
 audio = audio[:10_000]
 
-lib = ctypes.cdll.LoadLibrary('./dft.dll')
+lib = ctypes.cdll.LoadLibrary('provePreliminari\\python\\dft.dll')
 lib.dft.argtypes = (ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.c_int)
 lib.dft.restype = None
 
@@ -30,7 +30,7 @@ ptr_output = output.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
 lib.dft(ptr_input, ptr_output, len(audio))
 
-print(output)
-plt.stem(abs(output))
+plt.plot(output)
+plt.plot(custom_shift(output))
 plt.grid(True)
 plt.show()

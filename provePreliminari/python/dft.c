@@ -9,7 +9,7 @@
 void dft(float input[], float output[], int numeroCampioni) {
     float complex somma;
 
-    printf("Input: ");
+    /*printf("Input: ");
     for(int i=0; i<numeroCampioni; i++) {
         printf("%.2f  ", input[i]);
     }
@@ -18,7 +18,7 @@ void dft(float input[], float output[], int numeroCampioni) {
     for(int i=0; i<numeroCampioni; i++) {
         printf("%.0f  ", output[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     if(input == NULL || output == NULL)
         return;
