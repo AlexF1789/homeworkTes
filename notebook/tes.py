@@ -21,7 +21,6 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
 def dft_c(segnale: np.ndarray) -> np.ndarray:
     file_oggetto_c = str(os.path.join('obj', 'dft'))
 
-    # TODO: debuggare su Linux
     if platform.system() == 'Windows':
         file_oggetto_c += '.dll'
     else:
