@@ -3,22 +3,13 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+// -------- COMANDI DI COMPILAZIONE --------
 // windows: gcc -shared -o dft.dll dft.c
 // linux: gcc -shared -o dft.so -fPIC dft.c
+// -----------------------------------------
 
 void dft(float input[], float output[], int numeroCampioni) {
     float complex somma;
-
-    /*printf("Input: ");
-    for(int i=0; i<numeroCampioni; i++) {
-        printf("%.2f  ", input[i]);
-    }
-
-    printf("\nOutput: ");
-    for(int i=0; i<numeroCampioni; i++) {
-        printf("%.0f  ", output[i]);
-    }
-    printf("\n");*/
 
     if(input == NULL || output == NULL)
         return;
