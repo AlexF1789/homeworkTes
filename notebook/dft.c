@@ -4,8 +4,9 @@
 #include <math.h>
 
 // -------- COMANDI DI COMPILAZIONE --------
-// windows: gcc -shared -o dft.dll dft.c
-// linux: gcc -shared -o dft.so -fPIC dft.c
+// Windows: gcc -shared -o dft.dll dft.c
+// Linux: gcc -shared -o dft.so -fPIC dft.c
+// macOS: gcc -shared -o dft.o -fPIC dft.c
 // -----------------------------------------
 
 void dft(float input[], float output[], int numeroCampioni) {

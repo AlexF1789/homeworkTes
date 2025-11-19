@@ -21,20 +21,28 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
 def dft_c(segnale: np.ndarray) -> np.ndarray:
     file_oggetto_c = str(os.path.join('obj', 'dft'))
 
-    if platform.system() == 'Windows':
-        file_oggetto_c += '.dll'
-    else:
-        file_oggetto_c += '.so'
+    # determiniamo a quale file oggetto linkare in base all'OS
+    match platform.system():
+        case 'Windows':
+            file_oggetto_c += '.dll'
+        case 'Linux':
+            file_oggetto_c += '.so'
+        case 'Darwin':
+            file_oggetto_c += '.o'
+        case _:
+            raise Exception('Piattaforma non riconosciuta!')
 
+    # registriamo la funzione in C
     lib = ctypes.cdll.LoadLibrary(file_oggetto_c)
     lib.dft.argtypes = (ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.c_int)
     lib.dft.restype = None
 
+    # creiamo il puntatore a input e output
     ptr_input = segnale.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
     output = np.array([0 for _ in range(len(segnale))], dtype=np.float32)
-
     ptr_output = output.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
+    # chiamiamo la funzione in C e restituiamo il risultato
     lib.dft(ptr_input, ptr_output, len(segnale))
 
     return output
