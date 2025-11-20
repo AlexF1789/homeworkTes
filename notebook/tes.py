@@ -18,6 +18,10 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
 
     return np.array(trasformata)
 
+def get_spettro(trasformata: np.ndarray) -> np.ndarray:
+    return [abs(elemento)**2 for elemento in trasformata]
+
+
 def dft_c(segnale: np.ndarray) -> np.ndarray:
     file_oggetto_c = str(os.path.join('obj', 'dft'))
 
