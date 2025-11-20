@@ -2,8 +2,11 @@ import numpy as np
 from cmath import exp, pi
 import ctypes, platform, os
 
-# calcola la dft del segnale in input adoperando interamente
-# codice Python
+# calcola la dft del segnale in input adoperando
+# interamente codice Python
+#
+# riceve il segnale (campioni) in input e ne
+# restituisce la trasformata (valori complessi)
 def dft_python(segnale: np.ndarray) -> np.ndarray:
     N = len(segnale)
     trasformata = [0 for _ in range(N)]
@@ -18,10 +21,17 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
 
     return np.array(trasformata)
 
+# Data una trasformata ne calcola lo spettro
+# calcolando i quadrati di ogni coefficiente
 def get_spettro(trasformata: np.ndarray) -> np.ndarray:
-    return [abs(elemento)**2 for elemento in trasformata]
+    return np.square(trasformata)
 
-
+# Calcola la DFT di un segnale in input adoperando
+# codice C che viene chiamato in maniera trasparente
+#
+# riceve il segnale (campioni) e restituisce la
+# trasformata di cui è già stato calcolato il valore
+# assoluto
 def dft_c(segnale: np.ndarray) -> np.ndarray:
     file_oggetto_c = str(os.path.join('obj', 'dft'))
 
@@ -51,7 +61,9 @@ def dft_c(segnale: np.ndarray) -> np.ndarray:
 
     return output
 
-# effettua lo shift della fft del segnale
+# Effettua lo shift della fft del segnale
+# scambiando le frequenze negative e positive rendendone
+# dunque il grafico accurato
 def shift(trasformata: np.ndarray) -> np.ndarray:
     N = len(trasformata)
     indice_centrale = int(N/2)
@@ -62,3 +74,24 @@ def shift(trasformata: np.ndarray) -> np.ndarray:
     vettore_finale = trasformata[indice_centrale:].tolist() + trasformata[:indice_centrale].tolist()
 
     return np.array(vettore_finale)
+
+# Restituisce la frequenza limite (positiva) che corrisponde
+# alla banda al valore passato come parametro in percentuale
+# della banda (di default il valore considerato è il 90%)
+def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 90) -> float:
+    N = len(spettro)
+    indice_centrale = N // 2 + 1
+
+    energia_soglia = percentuale/100 * float(np.sum(spettro[:indice_centrale]))
+
+    if energia_soglia == 0.0:
+        return 0.0
+    
+    somma_cumulata = 0
+    for i in range(indice_centrale):
+        somma_cumulata += spettro[i]
+        
+        if somma_cumulata >= energia_soglia:
+            return i * Df
+    
+    return (indice_centrale - 1) * Df
