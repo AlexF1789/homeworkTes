@@ -77,8 +77,8 @@ def shift(trasformata: np.ndarray) -> np.ndarray:
 
 # Restituisce la frequenza limite (positiva) che corrisponde
 # alla banda al valore passato come parametro in percentuale
-# della banda (di default il valore considerato è il 90%)
-def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 90) -> float:
+# della banda (di default il valore considerato è il 99%)
+def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> float:
     N = len(spettro)
     indice_centrale = N // 2 + 1
 
