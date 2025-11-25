@@ -82,15 +82,20 @@ def dft_c_parallela(segnale: np.ndarray) -> np.ndarray:
         case _:
             raise Exception('Piattaforma non riconosciuta!')
 
-    # registriamo la funzione in C
+    # registriamo le funzioni in C
     lib = ctypes.cdll.LoadLibrary(file_oggetto_c)
     lib.dft.argtypes = (ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.c_int)
     lib.dft.restype = None
+
+    lib.getNumeroProcessori.restype = ctypes.c_int
 
     # creiamo il puntatore a input e output
     ptr_input = segnale.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
     output = np.array([0 for _ in range(len(segnale))], dtype=np.float32)
     ptr_output = output.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+
+    # stampiamo il numero di processori in uso
+    print(lib.getNumeroProcessori(), 'processori in uso...')
 
     # chiamiamo la funzione in C e restituiamo il risultato
     lib.dft(ptr_input, ptr_output, len(segnale))

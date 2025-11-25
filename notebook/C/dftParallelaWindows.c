@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <pthread.h>
+#include <windows.h>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -12,7 +11,7 @@ struct workerArgs {
     int numeroCampioni, k;
 };
 
-static void *sommaContributo(void *args) {
+static DWORD WINAPI sommaContributo(LPVOID args) {
     float complex somma = 0.0;
     struct workerArgs *argomenti = (struct workerArgs *) args;
 
@@ -23,11 +22,14 @@ static void *sommaContributo(void *args) {
 }
 
 int getNumeroProcessori() {
-    return sysconf(_SC_NPROCESSORS_CONF);
+    SYSTEM_INFO sysInfo;
+
+    GetSystemInfo(&sysInfo);
+    return sysInfo.dwNumberOfProcessors;
 }
 
 void dft(float input[], float output[], int numeroCampioni) {
-    pthread_t *threadAttivi;
+    HANDLE *threadAttivi;
     struct workerArgs *workerArgs;
     int numProcessori = getNumeroProcessori(), elementiTotali, iterazioniTotali;
 
@@ -36,7 +38,7 @@ void dft(float input[], float output[], int numeroCampioni) {
         return;
 
     // allochiamo la memoria per i thread
-    threadAttivi = (pthread_t *) malloc(numProcessori * sizeof(pthread_t));
+    threadAttivi = (HANDLE *) malloc(numProcessori * sizeof(HANDLE));
     workerArgs = (struct workerArgs *) malloc(numProcessori * sizeof(struct workerArgs));
 
     if(threadAttivi == NULL || workerArgs == NULL) {
@@ -77,15 +79,14 @@ void dft(float input[], float output[], int numeroCampioni) {
             if(workerArgs[j].k >= numeroCampioni)
                 break;
 
-            if(pthread_create(&threadAttivi[j], NULL, sommaContributo, &workerArgs[j])) {
+            if((threadAttivi[j] = CreateThread(NULL, 0, sommaContributo, &workerArgs[j], 0, NULL)) == NULL) {
                 printf("Errore nella creazione del thread %d/%d!\n", workerArgs[j].k, numeroCampioni);
                 return;
             }
         }
 
         // effettuiamo la join dei thread prima di riassegnarli ai valori successivi della somma
-        for(int j=0; j<numProcessori; j++)
-            pthread_join(threadAttivi[j], NULL);
+        WaitForMultipleObjects(numProcessori, threadAttivi, TRUE, INFINITE);
 
     }
 
