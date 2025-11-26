@@ -23,6 +23,8 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
     return np.array(trasformata)
 
 def dft_python_parallela(segnale: np.ndarray) -> np.ndarray:
+    cp.cuda.set_allocator(None)
+    cp.cuda.set_pinned_memory_allocator(None)
     x = cp.asarray(segnale)
     N = x.size
     
