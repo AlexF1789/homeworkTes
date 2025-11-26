@@ -1,6 +1,7 @@
 import numpy as np
 from cmath import exp, pi
 import ctypes, platform, os
+import cupy as cp
 
 # calcola la dft del segnale in input adoperando
 # interamente codice Python
@@ -20,6 +21,20 @@ def dft_python(segnale: np.ndarray) -> np.ndarray:
         trasformata[k] = somma
 
     return np.array(trasformata)
+
+def dft_python_parallela(segnale: np.ndarray) -> np.ndarray:
+    cp.cuda.set_allocator(None)
+    cp.cuda.set_pinned_memory_allocator(None)
+    x = cp.asarray(segnale)
+    N = x.size
+    
+    n = cp.arange(N)
+    k = n.reshape((N, 1))
+    
+    W = cp.exp(-2j * cp.pi * k * n / N)
+    
+    return W @ x 
+    
 
 # Data una trasformata ne calcola lo spettro
 # calcolando i quadrati di ogni coefficiente
