@@ -7,6 +7,10 @@ Assegnato il 17 novembre, da consegnare l'8 dicembre in formato ZIP tramite la s
 
 Si possono usare sia le versioni Matlab sia funzioni implementate da noi ad hoc. Seguiranno avvisi più dettagliati circa le modalità e le consegne.
 
+## Colab
+Il notebook di questo homework è disponibile su Google Colab
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AlexF1789/homeworkTes/blob/homework1/homework1/homework1.ipynb)
 ## Consegna
 Dobbiamo scegliere noi **due brani** di durata superiore ai **20 secondi** (non ci sono linee guida in merito, viene consigliato di scegliere caratteristiche un po' **diverse** a livello di **genere** per vedere delle differenze).
 
