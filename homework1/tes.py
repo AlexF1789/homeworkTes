@@ -33,7 +33,7 @@ def dft_python_parallela(segnale: np.ndarray) -> np.ndarray:
     
     W = cp.exp(-2j * cp.pi * k * n / N)
     
-    return W @ x 
+    return cp.asnumpy(W @ x)
     
 
 # Data una trasformata ne calcola lo spettro
