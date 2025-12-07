@@ -76,16 +76,26 @@ def calcola_funzione_coseno_rialzato(x: float, T: float, beta: float) -> float:
 #
 # restituisce un vettore NumPy che ne rappresenta la convoluzione
 def convoluzione(segnale1: np.ndarray, segnale2: np.ndarray) -> np.ndarray:
-    # verifichiamo la dimensione dei segnali e al massimo effettuiamo la tecnica dello zero-padding
-    # per portarli alla stessa
-    if segnale1.size < segnale2.size:
-        segnale1 = np.concatenate(segnale1, np.zeros(segnale2.size - segnale1.size))
-    elif segnale2.size < segnale1.size:
-        segnale2 = np.concatenate(segnale2, np.zeros(segnale1.size - segnale2.size))
+    dim_conv = segnale1.size + segnale2.size - 1
+    risultato = np.zeros(dim_conv)
 
-    # TODO: complete
+    for k in range(dim_conv):
+        for n in range(max(0, k - segnale2.size + 1), min(k + 1, segnale1.size)):
+            risultato[k] += segnale1[n] * segnale2[k-n]
+
+    return risultato
 
 
 # GRAFICI DI PROVA PER COSENO RIALZATO E SINC
 #plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
 #plt.stem([x for x in range(50)], get_filtro_discreto(10, 0, 10, 50, lambda x: np.sinc(x)))
+
+# ones = np.ones(5)
+# sones = np.ones(8)
+# exit = np.convolve(ones, sones)
+# print(exit, exit.size)
+
+# plt.stem(exit)
+# plt.xlim((-10, 110))
+# plt.grid(True)
+# plt.show()
