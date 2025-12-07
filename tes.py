@@ -101,18 +101,29 @@ def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : fl
     target = 1/np.sqrt(2)
     x_sol = 0
     if tipo_filtro == Tipo_filtro.PORTA:
-        def f_da_risolvere(x):
+        def f_da_risolvere_porta(x):
             return np.abs(np.sinc(x)) - target
 
         #usiamo la funzione brentq che risolve in maniera numerica ed efficace
         #l'equazione f(x) = 0, sappiamo che il risultato si trova circa intorno a 0.443
-        x_sol = brentq(f_da_risolvere, 0, 1)
+        x_sol = brentq(f_da_risolvere_porta, 0, 1)
     elif tipo_filtro == Tipo_filtro.COS_RIALZATO:
-        #TODO: complete
-        pass
+        def f_da_risolvere_cos(x):
+            return trasformata_coseno_rialzato(x, beta) - target
+        
+        x_sol = brentq(f_da_risolvere_cos, 0, 1)
 
     return x_sol / f_taglio
 
+def trasformata_coseno_rialzato(x, b):
+        # x è |f|*T
+        if x <= (1 - b) / 2:
+            return 1.0
+        elif x <= (1 + b) / 2:
+            arg = (np.pi / b) * (x - (1 - b) / 2)
+            return 0.5 * (1 + np.cos(arg))
+        else:
+            return 0.0
 
 # GRAFICI DI PROVA PER COSENO RIALZATO E SINC
 #plt.stem([i for i in range(50)], get_porta_discreta(3, 1, 10, 50))
