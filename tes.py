@@ -4,6 +4,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import typing, math
+from enum import Enum
+from scipy.optimize import brentq
+
+class Tipo_filtro (Enum):
+    PORTA = 1
+    COS_RIALZATO = 2
 
 # genera un filtro discreto e lo restituisce come vettore NumPy
 #
@@ -85,6 +91,40 @@ def convoluzione(segnale1: np.ndarray, segnale2: np.ndarray) -> np.ndarray:
 
     return risultato
 
+
+# calcola la lunghezza nel tempo che il filtro deve avere per avere la frequenza di taglio richiesta
+#
+# f_taglio: frequenza di taglio desiderata
+# tipo_filtro: tipo di filtro scelto
+# beta: parametro per filtro di tipo "coseno rialzato"
+def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : float) -> float:
+    #in scala lineare un riduzione di 3dB corrisponde a raggiungere il valore 1/sqrt(2)
+    target = 1/np.sqrt(2)
+    x_sol = 0
+    if tipo_filtro == Tipo_filtro.PORTA:
+        def f_da_risolvere_porta(x):
+            return np.abs(np.sinc(x)) - target
+
+        #usiamo la funzione brentq che risolve in maniera numerica ed efficace
+        #l'equazione f(x) = 0, sappiamo che il risultato si trova circa intorno a 0.443
+        x_sol = brentq(f_da_risolvere_porta, 0, 1)
+    elif tipo_filtro == Tipo_filtro.COS_RIALZATO:
+        def f_da_risolvere_cos(x):
+            return trasformata_coseno_rialzato(x, beta) - target
+        
+        x_sol = brentq(f_da_risolvere_cos, 0, 1)
+
+    return x_sol / f_taglio
+
+def trasformata_coseno_rialzato(x, b):
+        # x è |f|*T
+        if x <= (1 - b) / 2:
+            return 1.0
+        elif x <= (1 + b) / 2:
+            arg = (np.pi / b) * (x - (1 - b) / 2)
+            return 0.5 * (1 + np.cos(arg))
+        else:
+            return 0.0
 
 # GRAFICI DI PROVA PER COSENO RIALZATO E SINC
 #plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
