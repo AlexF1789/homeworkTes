@@ -7,6 +7,8 @@
 import unittest, tes
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 class TesTests(unittest.TestCase):
 
     # test che prova la porta discreta nel tempo adoperando alcuni esempi
@@ -43,17 +45,33 @@ class TesTests(unittest.TestCase):
 
     # test che prova il coseno rialzato in frequenza adoperando alcuni esempi
     # effettuati a mano
-    def test_coseno_rialzato_tempo(self):
-        self.skipTest("Non implementato")
+    def test_coseno_rialzato(self):
+        durata = 1_000
+        traslazione = 0
+        freq_camp = 1_000
+        num_campioni = 500_000
+        beta = 0.5
+        T = durata / 2
+
+        filtro_tempo = tes.get_coseno_rialzato(durata, traslazione, freq_camp, num_campioni, beta)
+        trasf_numerica = np.fft.fft(filtro_tempo)
+        magn_trasf_numerica = np.abs(trasf_numerica)[:num_campioni // 2] / num_campioni * T
+
+        frequenze = np.fft.fftfreq(num_campioni, d=1/freq_camp)[:num_campioni // 2]
+        trasf_def = np.abs(np.array([tes.trasf_cos_rialz(f, T, beta) for f in frequenze]))
+
+        trasf_def *=  (magn_trasf_numerica[0] / trasf_def[0])
+
+        plt.stem(trasf_def[:15], 'r1')
+        plt.stem(magn_trasf_numerica[:15], 'c1')
+        plt.show()
+
+        self.assertTrue(np.allclose(magn_trasf_numerica, trasf_def, atol=0.001))
+
 
     # test che prova la porta discreta in frequenza adoperando alcuni esempi
     # effettuati a mano
     def test_porta_frequenza(self):
-        self.skipTest("Non implementato")
-
-    # test che prova il coseno rialzato in frequenza adoperando alcuni esempi
-    # effettuati a mano
-    def test_coseno_rialzato_frequenza(self):
         self.skipTest("Non implementato")
 
     # test che prova la convoluzione scritta a mano rispetto a quella di libreria
