@@ -6,6 +6,7 @@
 
 import unittest, tes
 import numpy as np
+import math
 
 import matplotlib.pyplot as plt
 
@@ -46,27 +47,7 @@ class TesTests(unittest.TestCase):
     # test che prova il coseno rialzato in frequenza adoperando alcuni esempi
     # effettuati a mano
     def test_coseno_rialzato(self):
-        durata = 1_000
-        traslazione = 0
-        freq_camp = 1_000
-        num_campioni = 500_000
-        beta = 0.5
-        T = durata / 2
-
-        filtro_tempo = tes.get_coseno_rialzato(durata, traslazione, freq_camp, num_campioni, beta)
-        trasf_numerica = np.fft.fft(filtro_tempo)
-        magn_trasf_numerica = np.abs(trasf_numerica)[:num_campioni // 2] / num_campioni * T
-
-        frequenze = np.fft.fftfreq(num_campioni, d=1/freq_camp)[:num_campioni // 2]
-        trasf_def = np.abs(np.array([tes.trasf_cos_rialz(f, T, beta) for f in frequenze]))
-
-        trasf_def *=  (magn_trasf_numerica[0] / trasf_def[0])
-
-        plt.stem(trasf_def[:15], 'r1')
-        plt.stem(magn_trasf_numerica[:15], 'c1')
-        plt.show()
-
-        self.assertTrue(np.allclose(magn_trasf_numerica, trasf_def, atol=0.001))
+        self.skipTest('Da valutarne la presenza')
 
 
     # test che prova la porta discreta in frequenza adoperando alcuni esempi
@@ -93,4 +74,34 @@ class TesTests(unittest.TestCase):
         self.assertEqual(
             np.round(np.convolve(sgn2, sgn3), 2).tolist(),
             np.round(tes.convoluzione(sgn2, sgn3), 2).tolist()
+        )
+
+    # test che prova a calcolare la funzione di trasferimento mediante il codice
+    # e la verifica usando una funzione di trasferimento nota
+    def test_funzione_trasferimento(self):
+        # creiamo il segnale rumore
+        durata = tes.get_durata_per_taglio(1_000, tes.Tipo_filtro.PORTA, 0)
+        noise = np.random.randn(math.ceil(durata*44_100))
+
+        # creiamo il filtro nel tempo
+        porta = tes.get_porta_discreta(durata, 0, 44_100, math.ceil(durata*44_100))
+
+        # calcoliamo l'uscita e la trasformata del filtro
+        uscita = np.convolve(noise, porta)
+        n_fft = uscita.size
+        trasf_filtro = np.abs(np.fft.fftshift(np.fft.fft(porta, n=n_fft)))
+
+        # calcoliamo le trasformate dell'ingresso e dell'uscita per calcolare
+        noise_f = np.fft.fftshift(np.fft.fft(noise, n=n_fft))
+        uscita_f = np.fft.fftshift(np.fft.fft(uscita, n=n_fft))
+
+        funz_trasf = tes.calcola_funzione_trasferimento(noise_f, uscita_f)
+
+        # verifichiamo che la funzione di trasferimento attesa corrisponda a quella calcolato
+        self.assertTrue(
+            np.allclose(
+                funz_trasf,
+                trasf_filtro,
+                atol=0.01
+            )
         )

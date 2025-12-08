@@ -137,46 +137,17 @@ def trasf_cos_rialz(f, T, b) -> float:
     
     return 0.0
 
-def calcola_funzione_trasferimento(ingresso:np.ndarray, uscita: np.ndarray)->np.ndarray:
-    funz_trasf=np.zeros(ingresso.size)
-    for f in range(ingresso.size):
-        funz_trasf[f]=np.abs(uscita[f])/np.abs(ingresso[f])
+# Calcola la funzione di trasferimento del filtro dato un segnale in ingresso e la relativa uscita
+#
+# ingresso: è il vettore che rappresenta il segnale in ingresso (nel dominio della frequenza)
+# uscita: è il vettore che rappresenta il segnale in uscita (nel dominio della frequenza)
+#
+# restituisce un vettore che rappresenta il valore assoluto della funzione di trasferimento
+# calcolata nella frequenza corrispondente
+def calcola_funzione_trasferimento(ingresso:np.ndarray, uscita: np.ndarray) -> np.ndarray:
+    funz_trasf = np.zeros(ingresso.size)
     
+    for f in range(ingresso.size):
+        funz_trasf[f] = np.abs(uscita[f]) / np.abs(ingresso[f])
     
     return funz_trasf
-
-#PROVE PER LA FUNZIONE DI TRASFERIMENTO
-# durata=get_durata_per_taglio(1000,Tipo_filtro.PORTA,0)
-# noise=np.random.randn(math.ceil(durata*44100))
-# porta=get_porta_discreta(durata,0,44100,math.ceil(durata*44100))
-# uscit=np.convolve(noise,porta)
-# n_fft=len(uscit)
-# noise_f=np.fft.fft(noise,n=n_fft)
-# noise_f=np.fft.fftshift(noise_f)
-# uscit_f=np.fft.fft(uscit,n=n_fft)
-# uscit_f=np.fft.fftshift(uscit_f)
-
-# plt.plot(calcola_funzione_trasferimento(noise_f,uscit_f))
-# plt.show()
-
-
-
-
-
-
-    
-
-
-# GRAFICI DI PROVA PER COSENO RIALZATO E SINC
-#plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
-#plt.stem([x for x in range(50)], get_filtro_discreto(10, 0, 10, 50, lambda x: np.sinc(x)))
-
-# ones = np.ones(5)
-# sones = np.ones(8)
-# exit = np.convolve(ones, sones)
-# print(exit, exit.size)
-
-# plt.stem(exit)
-# plt.xlim((-10, 110))
-# plt.grid(True)
-# plt.show()
