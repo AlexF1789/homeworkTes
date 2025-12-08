@@ -125,17 +125,17 @@ def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : fl
 
     return x_sol / f_taglio
 
-def trasformata_coseno_rialzato(x, b):
-    # x è |f|*T
-    if x <= (1 - b) / 2:
-        return 1.0
-    elif x <= (1 + b) / 2:
-        arg = (np.pi / b) * (x - (1 - b) / 2)
-        return 0.5 * (1 + np.cos(arg))
-    else:
-        return 0.0
+def trasformata_coseno_rialzato_b(x, b):
+        # x è |f|*T
+        if x <= (1 - b) / 2:
+            return 1.0
+        elif x <= (1 + b) / 2:
+            arg = (np.pi / b) * (x - (1 - b) / 2)
+            return 0.5 * (1 + np.cos(arg))
+        else:
+            return 0.0
 
-def trasf_cos_rialz(f, T, b) -> float:
+def trasformata_coseno_rialzato(f, T, b) -> float:
     soglia_inf = (1-b) / (2*T)
     soglia_sup = (1+b) / (2*T)
 
@@ -182,14 +182,3 @@ def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> f
 
 def get_spettro(trasformata: np.ndarray) -> np.ndarray:
     return np.square(trasformata)
-
-def trasformata_coseno_rialzato(f, T, b) -> float:
-    soglia_inf = (1-b) / (2*T)
-    soglia_sup = (1+b) / (2*T)
-
-    if np.abs(f) <= soglia_inf:
-        return 1.0
-    elif soglia_inf < np.abs(f) <= soglia_sup:
-        return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
-    
-    return 0.0
