@@ -145,7 +145,23 @@ def trasf_cos_rialz(f, T, b) -> float:
         return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
     
     return 0.0
-
+  
+# Calcola la funzione di trasferimento del filtro dato un segnale in ingresso e la relativa uscita
+#
+# ingresso: è il vettore che rappresenta il segnale in ingresso (nel dominio della frequenza)
+# uscita: è il vettore che rappresenta il segnale in uscita (nel dominio della frequenza)
+#
+# restituisce un vettore che rappresenta il valore assoluto della funzione di trasferimento
+# calcolata nella frequenza corrispondente
+def calcola_funzione_trasferimento(ingresso:np.ndarray, uscita: np.ndarray) -> np.ndarray:
+    funz_trasf = np.zeros(ingresso.size)
+    
+    for f in range(ingresso.size):
+        funz_trasf[f] = np.abs(uscita[f]) / np.abs(ingresso[f])
+    
+    return funz_trasf
+  
+  
 def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> float:
     N = len(spettro)
     indice_centrale = N // 2 + 1
@@ -177,17 +193,3 @@ def trasformata_coseno_rialzato(f, T, b) -> float:
         return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
     
     return 0.0
-
-# GRAFICI DI PROVA PER COSENO RIALZATO E SINC
-#plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
-#plt.stem([x for x in range(50)], get_filtro_discreto(10, 0, 10, 50, lambda x: np.sinc(x)))
-
-# ones = np.ones(5)
-# sones = np.ones(8)
-# exit = np.convolve(ones, sones)
-# print(exit, exit.size)
-
-# plt.stem(exit)
-# plt.xlim((-10, 110))
-# plt.grid(True)
-# plt.show()
