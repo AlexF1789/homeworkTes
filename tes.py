@@ -59,6 +59,15 @@ def get_porta_discreta(durata: float, traslazione: float, frequenza_campionament
 def get_coseno_rialzato(durata: float, traslazione: float, frequenza_campionamento: float, numero_campioni: int, beta: float) -> np.ndarray:
     return get_filtro_discreto(durata, traslazione, frequenza_campionamento, numero_campioni, lambda x: calcola_funzione_coseno_rialzato(x, durata/2, beta))
 
+def get_cr_passa_alto(durata: float, frequenza_campionamento : float, beta : float) -> np.ndarray:
+    freqs = np.fft.fftfreq(int(durata*frequenza_campionamento), d=1/frequenza_campionamento)
+    H_lp = np.array([trasformata_coseno_rialzato(f, durata/2, beta) for f in freqs])
+
+    H_hp = 1 - H_lp
+
+    h_hp = np.fft.fftshift(np.fft.ifft(H_hp))
+    return np.real(h_hp)
+
 # calcola il valore della funzione coseno rialzato dati i parametri
 #
 # x: valore nel quale vogliamo calcolare la funzione
@@ -110,13 +119,13 @@ def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : fl
         x_sol = brentq(f_da_risolvere_porta, 0, 1)
     elif tipo_filtro == Tipo_filtro.COS_RIALZATO:
         def f_da_risolvere_cos(x):
-            return trasformata_coseno_rialzato(x, beta) - target
+            return trasformata_coseno_rialzato_b(x, beta) - target
         
         x_sol = brentq(f_da_risolvere_cos, 0, 1)
 
     return x_sol / f_taglio
 
-def trasformata_coseno_rialzato(x, b):
+def trasformata_coseno_rialzato_b(x, b):
         # x è |f|*T
         if x <= (1 - b) / 2:
             return 1.0
@@ -125,6 +134,17 @@ def trasformata_coseno_rialzato(x, b):
             return 0.5 * (1 + np.cos(arg))
         else:
             return 0.0
+
+def trasformata_coseno_rialzato(f, T, b) -> float:
+    soglia_inf = (1-b) / (2*T)
+    soglia_sup = (1+b) / (2*T)
+
+    if np.abs(f) <= soglia_inf:
+        return 1.0
+    elif soglia_inf < np.abs(f) <= soglia_sup:
+        return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
+    
+    return 0.0
 
 # GRAFICI DI PROVA PER COSENO RIALZATO E SINC
 #plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
