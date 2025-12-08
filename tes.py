@@ -59,6 +59,15 @@ def get_porta_discreta(durata: float, traslazione: float, frequenza_campionament
 def get_coseno_rialzato(durata: float, traslazione: float, frequenza_campionamento: float, numero_campioni: int, beta: float) -> np.ndarray:
     return get_filtro_discreto(durata, traslazione, frequenza_campionamento, numero_campioni, lambda x: calcola_funzione_coseno_rialzato(x, durata/2, beta))
 
+def get_cr_passa_alto(durata: float, frequenza_campionamento : float, beta : float) -> np.ndarray:
+    freqs = np.fft.fftfreq(int(durata*frequenza_campionamento), d=1/frequenza_campionamento)
+    H_lp = np.array([trasformata_coseno_rialzato(f, durata/2, beta) for f in freqs])
+
+    H_hp = 1 - H_lp
+
+    h_hp = np.fft.fftshift(np.fft.ifft(H_hp))
+    return np.real(h_hp)
+
 # calcola il valore della funzione coseno rialzato dati i parametri
 #
 # x: valore nel quale vogliamo calcolare la funzione
@@ -110,7 +119,7 @@ def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : fl
         x_sol = brentq(f_da_risolvere_porta, 0, 1)
     elif tipo_filtro == Tipo_filtro.COS_RIALZATO:
         def f_da_risolvere_cos(x):
-            return trasformata_coseno_rialzato(x, beta) - target
+            return trasformata_coseno_rialzato_b(x, beta) - target
         
         x_sol = brentq(f_da_risolvere_cos, 0, 1)
 
@@ -136,7 +145,7 @@ def trasf_cos_rialz(f, T, b) -> float:
         return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
     
     return 0.0
-
+  
 # Calcola la funzione di trasferimento del filtro dato un segnale in ingresso e la relativa uscita
 #
 # ingresso: è il vettore che rappresenta il segnale in ingresso (nel dominio della frequenza)
@@ -151,3 +160,36 @@ def calcola_funzione_trasferimento(ingresso:np.ndarray, uscita: np.ndarray) -> n
         funz_trasf[f] = np.abs(uscita[f]) / np.abs(ingresso[f])
     
     return funz_trasf
+  
+  
+def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> float:
+    N = len(spettro)
+    indice_centrale = N // 2 + 1
+
+    energia_soglia = percentuale/100 * float(np.sum(spettro[:indice_centrale]))
+
+    if energia_soglia == 0.0:
+        return 0.0
+    
+    somma_cumulata = 0
+    for i in range(indice_centrale):
+        somma_cumulata += spettro[i]
+        
+        if somma_cumulata >= energia_soglia:
+            return i * Df
+    
+    return (indice_centrale - 1) * Df
+
+def get_spettro(trasformata: np.ndarray) -> np.ndarray:
+    return np.square(trasformata)
+
+def trasformata_coseno_rialzato(f, T, b) -> float:
+    soglia_inf = (1-b) / (2*T)
+    soglia_sup = (1+b) / (2*T)
+
+    if np.abs(f) <= soglia_inf:
+        return 1.0
+    elif soglia_inf < np.abs(f) <= soglia_sup:
+        return 0.5 * (1+np.cos((np.pi*T)/b * (abs(f)-(1-b)/(2*T))))
+    
+    return 0.0
