@@ -137,6 +137,27 @@ def trasf_cos_rialz(f, T, b) -> float:
     
     return 0.0
 
+def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> float:
+    N = len(spettro)
+    indice_centrale = N // 2 + 1
+
+    energia_soglia = percentuale/100 * float(np.sum(spettro[:indice_centrale]))
+
+    if energia_soglia == 0.0:
+        return 0.0
+    
+    somma_cumulata = 0
+    for i in range(indice_centrale):
+        somma_cumulata += spettro[i]
+        
+        if somma_cumulata >= energia_soglia:
+            return i * Df
+    
+    return (indice_centrale - 1) * Df
+
+def get_spettro(trasformata: np.ndarray) -> np.ndarray:
+    return np.square(trasformata)
+
 # GRAFICI DI PROVA PER COSENO RIALZATO E SINC
 #plt.stem([i for i in range(50)], get_coseno_rialzato(3, 0, 10, 50, 0.15))
 #plt.stem([x for x in range(50)], get_filtro_discreto(10, 0, 10, 50, lambda x: np.sinc(x)))
