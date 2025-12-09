@@ -59,9 +59,9 @@ def get_porta_discreta(durata: float, traslazione: float, frequenza_campionament
 def get_coseno_rialzato(durata : float, T : float, traslazione: float, frequenza_campionamento: float, numero_campioni: int, beta: float) -> np.ndarray:
     return get_filtro_discreto(durata, traslazione, frequenza_campionamento, numero_campioni, lambda x: calcola_funzione_coseno_rialzato(x-durata/2, T, beta))
 
-def get_cr_passa_alto(durata: float, frequenza_campionamento : float, beta : float) -> np.ndarray:
+def get_cr_passa_alto(durata: float, T : float, frequenza_campionamento : float, beta : float) -> np.ndarray:
     freqs = np.fft.fftfreq(int(durata*frequenza_campionamento), d=1/frequenza_campionamento)
-    H_lp = np.array([trasformata_coseno_rialzato(f, durata/2, beta) for f in freqs])
+    H_lp = np.array([trasformata_coseno_rialzato(f, T, beta) for f in freqs])
 
     H_hp = 1 - H_lp
 
