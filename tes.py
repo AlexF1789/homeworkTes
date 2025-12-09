@@ -56,8 +56,8 @@ def get_porta_discreta(durata: float, traslazione: float, frequenza_campionament
 # callable: indica la funzione che fornisce il valore del segnale del filtro continuo dato il tempo
 #
 # restituisce un vettore NumPy di dimensione numero_campioni
-def get_coseno_rialzato(durata: float, traslazione: float, frequenza_campionamento: float, numero_campioni: int, beta: float) -> np.ndarray:
-    return get_filtro_discreto(durata, traslazione, frequenza_campionamento, numero_campioni, lambda x: calcola_funzione_coseno_rialzato(x, durata/2, beta))
+def get_coseno_rialzato(durata : float, T : float, traslazione: float, frequenza_campionamento: float, numero_campioni: int, beta: float) -> np.ndarray:
+    return get_filtro_discreto(durata, traslazione, frequenza_campionamento, numero_campioni, lambda x: calcola_funzione_coseno_rialzato(x-durata/2, T, beta))
 
 def get_cr_passa_alto(durata: float, frequenza_campionamento : float, beta : float) -> np.ndarray:
     freqs = np.fft.fftfreq(int(durata*frequenza_campionamento), d=1/frequenza_campionamento)
@@ -106,7 +106,7 @@ def convoluzione(segnale1: np.ndarray, segnale2: np.ndarray) -> np.ndarray:
 # f_taglio: frequenza di taglio desiderata
 # tipo_filtro: tipo di filtro scelto
 # beta: parametro per filtro di tipo "coseno rialzato"
-def get_durata_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : float) -> float:
+def get_T_per_taglio(f_taglio : float, tipo_filtro : Tipo_filtro, beta : float) -> float:
     #in scala lineare un riduzione di 3dB corrisponde a raggiungere il valore 1/sqrt(2)
     target = 1/np.sqrt(2)
     x_sol = 0
@@ -146,7 +146,8 @@ def trasformata_coseno_rialzato(f, T, b) -> float:
     
     return 0.0
   
-# Calcola la funzione di trasferimento del filtro dato un segnale in ingresso e la relativa uscita
+# Calcola la funzione di trasferimento del filtro data la trasformata
+# di un segnale in ingresso e la trasformata della relativa uscita
 #
 # ingresso: è il vettore che rappresenta il segnale in ingresso (nel dominio della frequenza)
 # uscita: è il vettore che rappresenta il segnale in uscita (nel dominio della frequenza)
@@ -154,12 +155,7 @@ def trasformata_coseno_rialzato(f, T, b) -> float:
 # restituisce un vettore che rappresenta il valore assoluto della funzione di trasferimento
 # calcolata nella frequenza corrispondente
 def calcola_funzione_trasferimento(ingresso:np.ndarray, uscita: np.ndarray) -> np.ndarray:
-    funz_trasf = np.zeros(ingresso.size)
-    
-    for f in range(ingresso.size):
-        funz_trasf[f] = np.abs(uscita[f]) / np.abs(ingresso[f])
-    
-    return funz_trasf
+    return np.abs(uscita / ingresso)
   
   
 def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> float:
@@ -182,3 +178,6 @@ def get_limite_banda(spettro: np.ndarray, Df: float, percentuale: int = 99) -> f
 
 def get_spettro(trasformata: np.ndarray) -> np.ndarray:
     return np.square(trasformata)
+
+def get_rumore_bianco(durata : int, frequenza_campionamento : float) -> np.ndarray:
+    return np.random.randn(math.ceil(durata*frequenza_campionamento))

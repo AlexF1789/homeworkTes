@@ -80,7 +80,7 @@ class TesTests(unittest.TestCase):
     # e la verifica usando una funzione di trasferimento nota
     def test_funzione_trasferimento(self):
         # creiamo il segnale rumore
-        durata = tes.get_durata_per_taglio(1_000, tes.Tipo_filtro.PORTA, 0)
+        durata = tes.get_T_per_taglio(1_000, tes.Tipo_filtro.PORTA, 0)
         noise = np.random.randn(math.ceil(durata*44_100))
 
         # creiamo il filtro nel tempo
